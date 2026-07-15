@@ -1,0 +1,12 @@
+.clasp.json
+.env
+.env.*
+!.env.example
+node_modules/
+coverage/
+dist/
+*.local.json
+deployment.local.json
+.DS_Store
+Thumbs.db
+

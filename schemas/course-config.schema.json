@@ -1,0 +1,75 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/talk-course-manager/course-config.schema.json",
+  "title": "Talk Course Manager course configuration",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "organization", "course", "schedule", "features"],
+  "properties": {
+    "schemaVersion": {
+      "const": 1
+    },
+    "organization": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schoolName", "unitName", "timeZone"],
+      "properties": {
+        "schoolName": { "type": "string", "minLength": 1, "maxLength": 120 },
+        "unitName": { "type": "string", "minLength": 1, "maxLength": 120 },
+        "timeZone": { "type": "string", "default": "Asia/Taipei" }
+      }
+    },
+    "course": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "semester", "room", "talkCount"],
+      "properties": {
+        "name": { "type": "string", "minLength": 1, "maxLength": 160 },
+        "semester": { "type": "string", "minLength": 1, "maxLength": 40 },
+        "room": { "type": "string", "maxLength": 120 },
+        "talkCount": { "type": "integer", "minimum": 1, "maximum": 40 }
+      }
+    },
+    "schedule": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["termStart", "termEnd", "weekday", "startTime", "endTime", "excludedDates"],
+      "properties": {
+        "termStart": { "type": "string", "format": "date" },
+        "termEnd": { "type": "string", "format": "date" },
+        "weekday": { "type": "integer", "minimum": 0, "maximum": 6 },
+        "startTime": { "type": "string", "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$" },
+        "endTime": { "type": "string", "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$" },
+        "excludedDates": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["date", "reason"],
+            "properties": {
+              "date": { "type": "string", "format": "date" },
+              "reason": { "type": "string", "minLength": 1, "maxLength": 120 }
+            }
+          }
+        }
+      }
+    },
+    "features": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["speakerLibrary", "tasks", "backup"],
+      "properties": {
+        "speakerLibrary": { "type": "boolean", "const": true },
+        "tasks": { "type": "boolean", "const": true },
+        "backup": { "type": "boolean", "const": true }
+      }
+    },
+    "needsConfirmation": {
+      "type": "array",
+      "items": { "type": "string" },
+      "uniqueItems": true,
+      "default": []
+    }
+  }
+}
+
