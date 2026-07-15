@@ -8,7 +8,7 @@ jobs:
   repository-safety:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Block private project markers
         shell: bash
         run: |
@@ -20,4 +20,3 @@ jobs:
             echo 'Private or institution-specific marker found.'
             exit 1
           fi
-
