@@ -16,7 +16,7 @@
       "properties": {
         "schoolName": { "type": "string", "minLength": 1, "maxLength": 120 },
         "unitName": { "type": "string", "minLength": 1, "maxLength": 120 },
-        "timeZone": { "type": "string", "default": "Asia/Taipei" }
+        "timeZone": { "type": "string", "minLength": 1, "maxLength": 80, "default": "Asia/Taipei" }
       }
     },
     "course": {
@@ -66,10 +66,10 @@
     },
     "needsConfirmation": {
       "type": "array",
-      "items": { "type": "string" },
+      "maxItems": 100,
+      "items": { "type": "string", "minLength": 1, "maxLength": 300 },
       "uniqueItems": true,
       "default": []
     }
   }
 }
-
