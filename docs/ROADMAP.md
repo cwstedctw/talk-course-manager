@@ -1,36 +1,27 @@
-# 第一階段施工計畫
+# 第一階段進度與驗收
 
-## P0：權限與安全驗證
+## 已完成：通用核心與設定管線
 
-- 驗證 owner、editor、同網域未授權者與網域外帳號。
-- 驗證 `Session.getActiveUser().getEmail()` 在目標 Workspace 部署設定下可用。
-- 建立 owner bootstrap，禁止零 owner 部署。
+- [x] 移除固定學校、學期、星期與場次假設。
+- [x] 建立課程、週曆、排除日、場次、講者與待辦資料模型。
+- [x] 完成 JSON Schema、語意驗證、跨年度排程與週曆預覽。
+- [x] 支援表單輸入、AI 草稿匯入與人工確認後匯出。
+- [x] 排除學校專屬核銷、領據、經費與校內連結。
 
-## P1：通用核心
+## 已完成：同網域 Apps Script alpha
 
-- 移除固定學校、固定學期、固定星期與固定 12 場假設。
-- 建立課程、週曆、排除日、場次、講者與待辦資料模型。
-- 將學校專屬核銷、領據、Hub 與經費規則排除於 general build。
+- [x] 建立 owner bootstrap、owner／editor 伺服器端角色驗證與最後一位 owner 保護。
+- [x] 建立講者、場次、待辦、使用者、稽核與交易復原資料表。
+- [x] 加入 revision、row version、`ScriptLock`、公式注入防護與 transaction journal。
+- [x] 建立可重現的 Apps Script、GitHub Pages 與 release 建置。
+- [x] 建立 Workspace 安裝、AI 設定、隱私、安全與健檢文件。
 
-## P2：設定管線
+## 待完成：Workspace 實機 alpha 驗收
 
-- 完成 JSON Schema。
-- 完成語意驗證與週曆預覽。
-- 支援表單輸入與 AI 草稿匯入。
-- 確认後才寫入 Sheet `Settings`。
+- [ ] owner、editor、同網域未授權者與網域外帳號實測。
+- [ ] 驗證 `Session.getActiveUser().getEmail()` 在至少兩個獨立 Workspace 網域可用。
+- [ ] 非工程使用者只看文件完成一次安裝。
+- [ ] 兩個帳號同時編輯時，舊 revision／version 正確被拒絕。
+- [ ] 新增場次後重新整理，資料仍存在；中斷交易可由 journal 復原。
 
-## P3：安裝與建置
-
-- 建立單一原始碼到 Apps Script 發布物的可重現建置。
-- 建立 Google Sheet 範本與初始化程式。
-- 建立 Workspace 部署與健檢指南。
-
-## P4：alpha 驗收
-
-- 至少兩個獨立 Workspace 網域測試。
-- 非工程使用者只看文件完成安裝。
-- owner 可登入、editor 可共同編輯、denied 讀不到資料。
-- 週曆正確，第一筆場次重新整理後仍存在。
-
-通過 alpha 後，才開始討論公開報名頁與跨網域帳號。
-
+完成這份驗收後，再評估公開報名頁、一般 Gmail 與跨網域帳號。

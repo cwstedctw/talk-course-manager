@@ -4,19 +4,17 @@ on:
   push:
   pull_request:
 
+permissions:
+  contents: read
+
 jobs:
   repository-safety:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
-      - name: Block private project markers
-        shell: bash
-        run: |
-          set -euo pipefail
-          if grep -RInE \
-            --exclude-dir=.git \
-            --exclude='safety.yml' \
-            '(gms\.ndhu\.edu\.tw|docs\.google\.com/spreadsheets/d/|script\.google\.com/macros/s/AKfy|1LyfUWA3C|19I2-BIjF)' .; then
-            echo 'Private or institution-specific marker found.'
-            exit 1
-          fi
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run check
