@@ -1,82 +1,52 @@
-# Talk Course Manager
+# 演講課管理台（Talk Course Manager）
 
-給大專校院演講課使用的 Google Workspace 管理台。講者、場次、待辦與學期週曆放在課程自己的 Google Sheet，同校夥伴透過 Apps Script Web App 共同編輯。
+一學期 N 場系列演講課的後台管理系統：從邀請講者、行政簽核、當天簽到，到核銷入帳與成果報告，一場演講的完整生命週期都在同一個畫面追蹤。後端是 Google Apps Script＋私有 Google Sheet，前端是單檔 HTML，部署完全走你自己的 Google 帳號，不需要另外租伺服器。
 
-[線上 Demo](https://cwstedctw.github.io/talk-course-manager/demo.html?demo=1)｜[課程設定精靈](https://cwstedctw.github.io/talk-course-manager/setup/)｜[安裝包](https://github.com/cwstedctw/talk-course-manager/releases)
+這個 repo 是公開分享版：裡面的學校（示範大學）、教師（王示範）、信箱（`*@example.invalid`）、經費數字（總額 300,000）都是示範值。想拿去辦自己的演講課，照 [SETUP.md](SETUP.md) 架起來、再照 [CUSTOMIZE.md](CUSTOMIZE.md) 換成自己的課就能用。
 
-> 目前版本：`v0.1.0-alpha.1`。程式、設定精靈與本機測試已可用；正式使用前，各校仍須完成 owner、editor、未授權帳號與網域外帳號的實機驗收。
+## 解決什麼痛
 
-## 這個版本能做什麼
+一學期 12 場演講，每場從邀約到結案大約 10 個步驟：邀請信、確認講題、收簡歷、行政簽核、宣傳、行前信、當天簽到拍照領據、感謝函、核銷送件、追入帳。而且 12 場是**平行進行**的——第 3 場在收單核銷時，第 7 場正在邀約、第 10 場還沒找到人。靠信箱跟腦袋記，一定掉球；掉的球常是最貴的那顆（核銷過期、講者到了才發現沒借場地）。
 
-- 同一個學校 Google Workspace 網域內，一位或多位 owner 搭配多位 editor。
-- 以私有 Google Sheet 保存講者、場次、待辦、設定、稽核紀錄與復原紀錄。
-- 用設定精靈調整學期起訖日、上課星期、時間、排除日與演講場次。
-- 匯入 AI agent 產生的設定草稿；資料有缺漏時必須保留待確認標記。
-- 用 revision、row version、`ScriptLock` 與 transaction journal 避免靜默覆蓋。
-- 下載 JSON 備份。備份可能含講者聯絡資料，必須當成個資檔案保存。
+這個系統把「每場該做什麼、什麼時候到期」變成一張自動排序的待辦清單：打開總覽，先做最上面那件事。
 
-這個 alpha 不支援一般 Gmail、跨校共同編輯、公開講者報名頁，也不包含任何學校專屬的領據、核銷或會計表單。
+## 全生命週期
 
-## 安裝
-
-一般使用者建議下載 [最新安裝包](https://github.com/cwstedctw/talk-course-manager/releases)，解壓縮後把 `apps-script` 內的三個檔案放進一份空白 Google Sheet 的 Apps Script 專案。完整步驟見 [Workspace 安裝手冊](docs/INSTALL-WORKSPACE.md)。
-
-開發者也可以從原始碼建置：
-
-```bash
-npm ci
-npm run check
+```
+口袋名單 → 邀約中 → 已確認 → 演講當天 → 事後 → 已入帳結案
+ (講者庫)   (邀請信)  (行政/宣傳/行前信)  (簽到/照片/領據)  (感謝函/核銷)  (成果歸檔)
 ```
 
-建置結果會放在 `dist/apps-script/` 與 `dist/pages/`。`dist/` 是產生檔，不要手動修改。
+## 功能模組
 
-安裝時請守住一條界線：editor 只使用 Web App，不要把底層 Google Sheet 的編輯權分享給 editor。直接編輯 Sheet 會繞過角色驗證、資料驗證與 `AuditLog`。
-
-## 權限
-
-| 角色 | 可以做的事 |
+| 模組 | 解決什麼 |
 |---|---|
-| owner | 管理課程資料、設定與使用者 |
-| editor | 編輯講者、場次與待辦 |
-| denied | 不得取得課程資料 |
+| **總覽儀表板** | 12 場狀態、預算使用、逾期與近期待辦自動排序 |
+| **學期週曆** | 內建 17+1 週學期週曆範例（假日全標），一鍵把 12 場排入非假日上課日；換學期用 App 內「換新學期」重建，不用改程式 |
+| **場次管理** | 固定場次槽，每場：講者、講題、日期、指標標籤、進度 |
+| **待辦引擎** | 每場一份時程範本（D-35 邀約 … D-1 列印 … D+30 追入帳），日期一填、到期日全自動 |
+| **講者庫** | 口袋名單 CRM：接洽狀態、專長、聯絡方式，一鍵排入場次；場次頁直接填的講者也能一鍵存回講者庫；附示範名單格式，可把自己的口袋名單批次匯入 |
+| **指南＋完整度** | 四步上手指南；場次卡自動標「缺 n 項」（日期／講題／姓名／單位／指標） |
+| **文件產生器** | 邀請信、行前確認信、感謝函（範本可改、一鍵複製）＋簽到表列印＋領據代填列印（金額大寫、民國日期自動帶入；個資欄留白手寫）。列印走頁內列印層，彈窗封鎖環境照樣能用 |
+| **核銷追蹤** | 每場文件包固定動作＋鐘點費試算＋收件清單＋四階段看板 |
+| **收支結算表** | 一鍵代填台灣教育部「附件6-1 補(捐)助經費收支結算表」；依兩期撥款拆「期中結算」「全案結算」兩版，各欄公式先算好、整張可點字修改再印 |
+| **講者報名頁** | `join.html`：對外分享的公開頁（手機優先）——課程介紹、即時去個資檔期、自薦／推薦雙模式表單；送進同一份私有 Sheet，管理台收件匣可轉入講者庫或略過 |
+| **交通費估算** | 內建範例票價表（以示範校區最近車站為終點、分縣市列票價），依講者單位自動猜縣市帶出估算；換校要重建整表，詳見 CUSTOMIZE.md |
+| **資料快照／復原** | 可下載管理畫面資料快照作額外保險；完整復原以私有 Google Sheet 的版本紀錄為準 |
+| **新學期重設** | Owner 輸入新學期、第 1 週上課日與停課週次，系統先存舊學期快照再重建場次、待辦與週曆；講者庫、範本與經費科目全保留 |
 
-Google Workspace 網域限制是第一層，應用程式的 `Users` 白名單是第二層。權限判斷全部在 Apps Script 後端重做，不能只靠前端隱藏按鈕。
+## 技術架構
 
-## 請 AI 幫忙設定
+Google Apps Script（兩個獨立專案）＋一份私有 Google Sheet＋單檔 HTML 前端。`apps-script-admin/` 是私有管理台（限授權名單登入，伺服器端做角色權限、樂觀鎖、原子批次與 AuditLog）；`apps-script-join/` 是公開報名收件端點（只能新增報名資料，讀不到管理資料——兩個專案分開，就是為了避免一次部署設定錯誤把管理台對外開放）。前端 Local-First：瀏覽器依登入者分開保存草稿快取，斷網可繼續輸入、回線後補送；正式真值永遠是 Sheet。架構細節見 [FRAMEWORK.md](FRAMEWORK.md)，前後端 API 契約見 [INTERFACE_CONTRACT.md](INTERFACE_CONTRACT.md)。
 
-Codex、Claude Code 或其他 coding agent 應依序讀：
+## 上手路線
 
-1. [`AGENTS.md`](AGENTS.md)
-2. [`docs/AI-SETUP.md`](docs/AI-SETUP.md)
-3. [`schemas/course-config.schema.json`](schemas/course-config.schema.json)
+1. **從零架起來**：照 [SETUP.md](SETUP.md)，從建 Sheet 到部署 Web App，一步一步做完就能登入。**用個人 Gmail（非學校 Workspace 帳號）的，必看 SETUP 第 8 步的存取權設定**，不然管理台部署會卡住。
+2. **換成自己的課**：照 [CUSTOMIZE.md](CUSTOMIZE.md) 的必改清單，把課名、學校、經費、週曆換掉。
+3. **用 AI 幫你客製**：把整個 repo 丟給 AI 助手（Claude Code、Codex 之類），它會先讀 [AGENTS.md](AGENTS.md) 的工作守則；裡面附了幾個起手 prompt 範例。
 
-可以直接交給 agent 的提示：
+repo 內建的示範資料是一個台灣情境的完整範例：17+1 週學期週曆、台鐵／高鐵交通費估算表（以東部校區為終點）、台灣的教育部計畫領據與收支結算表版式。這三塊都是「功能性範例」，換成你的學校照 CUSTOMIZE.md #7–#9 處理（不在台灣體系也可以整組停用）。
 
-```text
-請先讀 AGENTS.md、docs/AI-SETUP.md 與 schemas/course-config.schema.json。
-只查學校官方課程系統、官方行事曆與政府來源，建立
-course.config.draft.json 與 course.sources.json。查不到就留空並列入
-needsConfirmation，不要推測；不要部署 Apps Script，也不要修改 Google 權限。
-```
+## License
 
-AI 產出的內容只是草稿。設定精靈會在瀏覽器內驗證與預覽，教師確認後才匯出 `course.config.json`。
-
-## 文件與原始碼
-
-- [架構與角色](docs/ARCHITECTURE.md)
-- [Workspace 安裝手冊](docs/INSTALL-WORKSPACE.md)
-- [AI 設定與來源規則](docs/AI-SETUP.md)
-- [隱私與安全邊界](docs/PRIVACY.md)
-- [alpha 進度與驗收](docs/ROADMAP.md)
-- `src/core/`：日期、排程與設定驗證
-- `src/setup/`：靜態設定精靈
-- `src/admin/`：管理台前端
-- `src/gas-admin/`：Apps Script 後端
-
-## 開發驗證
-
-`npm run check` 會重建發布物、執行核心、schema、建置與 Apps Script 安全契約測試，再掃描不應公開的 Google ID、email、token 與私密檔案。目前共有 21 項自動測試；真正的 Workspace OAuth 與四種帳號權限仍需在目標學校環境人工驗收。
-
-## 授權
-
-程式碼採 [MIT License](LICENSE)。本工具不是任何學校的正式校務、個資或會計系統；各校仍須依自己的內部規範決定是否使用。
+MIT（見 [LICENSE](LICENSE)）。介面內嵌的 SVG 圖示取自 [Feather Icons](https://feathericons.com/)（MIT License）。
