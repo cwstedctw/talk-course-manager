@@ -47,6 +47,10 @@ Google Apps Script（兩個獨立專案）＋一份私有 Google Sheet＋單檔 
 
 repo 內建的示範資料是一個台灣情境的完整範例：17+1 週學期週曆、台鐵／高鐵交通費估算表（以東部校區為終點）、台灣的教育部計畫領據與收支結算表版式。這三塊都是「功能性範例」，換成你的學校照 CUSTOMIZE.md #7–#9 處理（不在台灣體系也可以整組停用）。
 
+## 已知問題
+
+作者自己照 SETUP 從零裝過一輪，把踩到的坑都寫下來了：安裝過程的疑難排解在 [SETUP.md 第 13 節](SETUP.md)，程式本身還沒修好的行為在 [KNOWN-ISSUES.md](KNOWN-ISSUES.md)（最明顯的一個：全新安裝第一次開管理台會跳一批假衝突，資料是好的，清掉就沒事）。
+
 ## License
 
 MIT（見 [LICENSE](LICENSE)）。介面內嵌的 SVG 圖示取自 [Feather Icons](https://feathericons.com/)（MIT License）。
