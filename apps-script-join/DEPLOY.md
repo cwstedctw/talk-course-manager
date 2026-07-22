@@ -6,7 +6,7 @@
 
 1. 安裝並登入 clasp：`npm install -g @google/clasp`，然後 `clasp login`。
 2. 二選一：
-   - **全新建立**：在本資料夾執行 `clasp create --type webapp --title "演講課公開報名"`，clasp 會自動產生 `.clasp.json`。
+   - **全新建立**：在本資料夾執行 `clasp create --type standalone --title "演講課公開報名"`，clasp 會自動產生 `.clasp.json`。（⚠️ `--type webapp` 在 clasp 3.3.0 已失效、會回 `Invalid container file type`；standalone 專案照樣部署得成 Web App。create 會覆寫 `appsscript.json`，記得 `git checkout -- appsscript.json` 還原。詳見 [SETUP.md](../SETUP.md) 第 3 步。）
    - **已有專案**：把 `.clasp.json.example` 複製成 `.clasp.json`，將 `scriptId` 換成你自己的專案 ID（Apps Script 編輯器「專案設定」頁可查）。
 3. `.clasp.json` 內含你的 scriptId，建議不要 commit 進公開 repo。
 
